@@ -3,5 +3,14 @@ uuid = "f626d2e5-ec45-404c-84c6-8efe5c847b30"
 authors = ["Cristina Moraru"]
 version = "0.2.0"
 
+[deps]
+BioS_Gen = "a3c344c2-dffd-44c7-b934-12f2f183f71e"
+BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+FASTX = "c2308a5c-f048-11e8-3e8a-31650f418d12"
+FastaIO = "a0c94c4b-ebed-5953-b5fc-82fe598ac79f"
+Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
+
 [compat]
 julia = "1.10"
