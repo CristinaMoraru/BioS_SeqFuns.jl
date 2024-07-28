@@ -1,0 +1,3 @@
+[deps]
+BioS_SeqFuns = "f626d2e5-ec45-404c-84c6-8efe5c847b30"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
