@@ -1,5 +1,5 @@
 export rc_string, gc_string, find_num_contigs, get_contig_names, get_contig_length
-export contigSplit, contigLengthSel, contigNameSel, contigExtractRegions, renameContigs, detectCircContigs, get_contig_names_4_contigs_with_seq
+export contigSplit, contigLengthSel, contigNameSel, contigExtractRegions, renameContigs, detectContigShapeEnds, get_contig_names_4_contigs_with_seq
 export contigFindIdent, contigDerepClusters
 
 """
@@ -269,36 +269,76 @@ function renameContigs(in_p::FnaP, out_p::FnaP, namesdict::Dict{String, String})
 end
 
 
-function detectCircContigs(in_p::FnaP)
-    df = DataFrame(contig_name = Vector{String}(), contig_shape = Vector{String}(), contig_trimmed_end = Vector{Int64}(), contig_full_end = Vector{Int64}())
+function detectContigShapeEnds(in_p::FnaP)
+    df = DataFrame(contig_name = Vector{String}(), contig_shape = Vector{String}(), contig_end_repeat_type = Vector{String}(), contig_shape_remarks = Vector{String}(),
+                    contig_end_repeat_size = Vector{Integer}(), contig_trimmed_end = Vector{Int64}(), contig_full_end = Vector{Int64}())
     
+    contig_length = get_contig_length(in_p)
+
         FastaReader(in_p.p) do FASTA
+            iterator = 0
+
             for fr in FASTA
-                c = 0
-                r = 0
+                iterator += 1                
+                max_repeat_len = Int(floor(contig_length[iterator]/2))
+                
+                cd = 0
+                ci = 0
+                dtr = 0
+                itr = 0
                 l = length(fr[2])
                 
-                for i in 20:1000
-                    if fr[2][1:i] == fr[2][(l-i+1):l]
-                        c = i
-                        r = 1
-                    else
-                        if r == 1
-                            break
+                for i in 20:max_repeat_len
+                    try
+                        if fr[2][1:i] == fr[2][(l-i+1):l]
+                            cd = i
+                            dtr += 1
+                        elseif fr[2][1:i] == rc_string(fr[2][(l-i+1):l])
+                            ci = i
+                            itr += 1 
                         end
+                    catch
+                        break  # it will break when it finds the first N base
                     end
                 end
 
-                if c == 0 || c ==l
+                if cd == 0 && ci == 0  # if no repeats where found, cd and cd are zero
                     shape = "linear"
+                    end_type = ""
                     cend = l
-                else
-                    shape = "circular"
-                    cend = (l-c)
+                    repeat_size = 0
+                    shape_remarks = ""
+                else                 
+                    if cd > ci
+                        shape = "circular"
+                        end_type = "DTR"
+                        
+                        cend = (l-cd)
+                        repeat_size = cd
 
+                        if repeat_size == l/2
+                            shape_remarks = "duplicated sequence, DTR"
+                        else
+                            shape_remarks = ""
+                        end
+
+                    elseif ci > cd
+                        shape = "linear"
+                        end_type = "ITR"
+
+                        cend = l
+                        repeat_size = ci
+
+                        if repeat_size == l/2
+                            shape_remarks = "duplicated sequence, ITR"
+                        else
+                            shape_remarks = ""
+                        end
+                    end
                 end
                 
-                push!(df, Dict(:contig_name => fr[1], :contig_shape => shape, :contig_trimmed_end => cend, :contig_full_end => l))
+                push!(df, Dict(:contig_name => fr[1], :contig_shape => shape, :contig_end_repeat_type => end_type, :contig_shape_remarks => shape_remarks,
+                                :contig_end_repeat_size => repeat_size, :contig_trimmed_end => cend, :contig_full_end => l))
             end
         end
 
