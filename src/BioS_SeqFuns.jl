@@ -10,6 +10,7 @@ using Suppressor
 #my packages
 using BioS_Gen
 
+include("BioS_SeqFuns_DataTypes.jl")
 include("BioS_SeqFuns_seq.jl")
 include("BioS_SeqFuns_Fastq2Fasta.jl")
 include("BioS_SeqFuns_Append2Seq.jl")
