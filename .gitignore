@@ -1,3 +1,4 @@
-/docs/Manifest.toml
-/docs/build/
-/src/tests
+docs/Manifest.toml
+docs/build/
+src/tests/seq
+.git
