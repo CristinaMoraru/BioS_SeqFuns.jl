@@ -62,3 +62,25 @@ function mfasta2mfasta(inp::FnaP, outp::FnaP; prefix::String="")
 
     return namesdict
 end
+
+function mfasta2mfasta(inp::FnaP, outp::String, batches::Int64)
+    totalcontigs = find_num_contigs(inp)
+    contigs_per_batch = Int64(ceil(totalcontigs/batches))
+
+    FastaReader(inp.p) do FASTA
+        i = 0
+        j = 1
+        for fr in FASTA
+            i += 1
+            if i > contigs_per_batch
+                i = 1
+                j += 1
+            end
+
+            FastaIO.writefasta("$(outp)_b$(j).fna", ["$(fr[1])" => "$(fr[2])"], "a")#; check_description=false)
+        end
+    end
+
+    return nothing
+end 
+
