@@ -368,6 +368,13 @@ function detectContigShapeEnds(in_p::FnaP)
                         tr = dtr
                     elseif dtr.length < itr.length
                         tr = itr
+                    elseif dtr.length == itr.length 
+                        tr = terminal_repeat(type = "DTRandITR",
+                                              length = dtr.length,
+                                              left_start = dtr.left_start,
+                                              left_end = dtr.left_end,
+                                              right_start = dtr.right_start,
+                                              right_end = dtr.right_end)
                     end
                 end
 
@@ -398,6 +405,18 @@ function detectContigShapeEnds(in_p::FnaP)
 
                         cend = l
                         repeat_size = tr.length
+
+                        if repeat_size == l/2
+                            shape_remarks = "duplicated sequence, ITR"
+                        else
+                            shape_remarks = ""
+                        end
+                    elseif tr.type == "DTRandITR"
+                        shape = "linear"
+                        end_type = "DTRandITR"
+                        cend = l
+                        repeat_size = tr.length
+                        shape_remarks = ""
 
                         if repeat_size == l/2
                             shape_remarks = "duplicated sequence, ITR"
