@@ -163,12 +163,17 @@ end
     contigLengthSel
     It selects contigs with length greater or equal than minLen, and writes them to the output file.
 """
-function contigLengthSel(minLen::Int64, in_p::FnaP, out_p::FnaP)
+function contigLengthSel(minLen::Int64, in_p::FnaP, out_p::FnaP; replace_whitespaces::Bool=false)
     FastaWriter(out_p.p) do fw
         FastaReader(in_p.p) do FASTA
             for fr in FASTA
                 if length(fr[2]) >= minLen
-                    @suppress writeentry(fw, "$(fr[1])", "$(fr[2])")
+                    if replace_whitespaces == true
+                        seqname = replace("$(fr[1])", " " => "_")
+                    else
+                        seqname = "$(fr[1])"
+                    end
+                    @suppress writeentry(fw, seqname, "$(fr[2])")
                 end
             end
         end
